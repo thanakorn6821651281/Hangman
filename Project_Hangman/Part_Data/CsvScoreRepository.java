@@ -7,27 +7,33 @@ import java.nio.file.*;
 import java.util.*;
 
 public class CsvScoreRepository implements ScoreRepository {
-    private final Path file;
+    private final Path file; //ทำหน้าที่เก็บไฟล์ CSV
+ 
+    // ===== กำหนดโฟลเดอร์ที่เก็บไฟล์ CSV =====
 
     public CsvScoreRepository(Path file) {
         this.file = file;
         ensureFile();
     }
 
+    // ===== ตรวจสอบว่ามีไฟล์ CSV อยู่หรือไม่ ถ้าไม่มีให้สร้างขึ้นมา =====
+
     private void ensureFile() {
         try {
             if (file.getParent() != null) Files.createDirectories(file.getParent());
             if (!Files.exists(file)) {
-                Files.write(file, Arrays.asList("name,score"), StandardCharsets.UTF_8);
+                Files.write(file, Arrays.asList("name,score"), StandardCharsets.UTF_8);// สร้างไฟล์ CSV และเขียนหัวข้อคอลัมน์
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
+    // ===== บันทึกคะแนนของผู้เล่น =====
+
     public void save(Player player) {
-        List<Player> all = load();
-        Player existing = null;
+        List<Player> all = load();// โหลดรายชื่อผู้เล่นทั้งหมดจากไฟล์ CSV
+        Player existing = null;// ตรวจสอบว่าผู้เล่นนี้มีอยู่แล้วหรือไม่
         for (Player p : all) {
             if (p.getName().equalsIgnoreCase(player.getName())) {
                 existing = p;
@@ -55,6 +61,8 @@ public class CsvScoreRepository implements ScoreRepository {
         }
     }
 
+    // ===== ขอรายชื่อผู้เล่นทั้งหมด =====
+
     public List<Player> load() {
         List<Player> list = new ArrayList<Player>();
         try (BufferedReader br = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
@@ -74,13 +82,15 @@ public class CsvScoreRepository implements ScoreRepository {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        Collections.sort(list, new Comparator<Player>() {
+        Collections.sort(list, new Comparator<Player>() {// เรียงลำดับผู้เล่นตามคะแนนจากมากไปน้อย
             public int compare(Player a, Player b) {
                 return Integer.compare(b.getScore(), a.getScore());
             }
         });
         return list;
     }
+    
+    // ===== แปลงข้อความเป็นรูปแบบ CSV =====
 
     private String csv(String s) {
         return s.indexOf(',') >= 0 ? "\"" + s.replace("\"", "\"\"") + "\"" : s;

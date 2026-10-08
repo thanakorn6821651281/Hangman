@@ -10,18 +10,21 @@ public class GameService {
 
     public GameService(WordService wordService) { this.wordService = wordService; }
 
+    //// ===== สร้างเกมใหม่ =====
     public HangmanGame newGame(Difficulty difficulty) {
         Word word = wordService.randomWord(difficulty);
         return new HangmanGame(word, difficulty);
     }
 
+    // ===== สร้างเกมใหม่โดยไม่ซ้ำกับคำตอบก่อนหน้า =====
     public HangmanGame nextGame(Difficulty difficulty, String previousAnswer) {
         Word word = wordService.randomWord(difficulty, previousAnswer);
         return new HangmanGame(word, difficulty);
     }
 
+    // ===== คำนวณคะแนนของเกม =====
     public int score(HangmanGame game) {
-        if (game.getStatus() != GameStatus.WON) return 0;
+        if (game.getStatus() != GameStatus.WIN) return 0;
         int base;
         switch (game.getDifficulty()) {
             case EASY: base = 10; break;

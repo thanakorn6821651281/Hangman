@@ -8,49 +8,41 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
-/**
- * Shared application services and data location.
- *
- * The original project assumed the JVM working directory was exactly the
- * project folder. VS Code can launch a Java file with the workspace root as
- * the working directory, which made the game fail as soon as a difficulty
- * was selected because data/words/*.csv could not be found.
- *
- * This class now locates the data folder automatically, so the game can be
- * started from either the project folder or its parent workspace folder.
- */
+// ===== บริการของแอปพลิเคชัน =====
 public final class AppServices {
-    private static final Path DATA_ROOT = locateDataRoot();
-    private static final Path DATA_WORDS = DATA_ROOT.resolve("words");
-    private static final Path DATA_PLAYERS = DATA_ROOT.resolve("players").resolve("players.csv");
+    private static final Path DATA_ROOT = locateDataRoot(); // กำหนดโฟลเดอร์ที่เก็บไฟล์ CSV
+    private static final Path DATA_WORDS = DATA_ROOT.resolve("words"); // กำหนดโฟลเดอร์ที่เก็บไฟล์ CSV ของคำศัพท์
+    private static final Path DATA_PLAYERS = DATA_ROOT.resolve("players").resolve("players.csv"); // กำหนดไฟล์ CSV ของผู้เล่น
 
-    private static final WordService WORDS = new WordService(new CsvWordRepository(DATA_WORDS));
+    private static final WordService WORDS = new WordService(new CsvWordRepository(DATA_WORDS)); 
     private static final GameService GAME = new GameService(WORDS);
     private static final LeaderboardService LEADERBOARD =
             new LeaderboardService(new CsvScoreRepository(DATA_PLAYERS));
 
-    private AppServices() {}
+    private AppServices() {}// ป้องกันการสร้างอินสแตนซ์ของคลาสนี้
 
     public static GameService game() { return GAME; }
     public static LeaderboardService leaderboard() { return LEADERBOARD; }
 
+    // ===== ค้นหาโฟลเดอร์ data ที่เก็บไฟล์ CSV ของคำศัพท์และผู้เล่น =====
+
     private static Path locateDataRoot() {
         Path workingDir = Paths.get(System.getProperty("user.dir")).toAbsolutePath().normalize();
 
-        // Check the current folder and its parents first. This also covers
-        // launches started from a source subfolder.
+       
+        // ตรวจสอบโฟลเดอร์ปัจจุบันและโฟลเดอร์พาเรนต์ก่อน ซึ่งครอบคลุมการเปิดใช้งานจากโฟลเดอร์ย่อยของซอร์สด้วย
         for (Path p = workingDir; p != null; p = p.getParent()) {
             Path direct = p.resolve("data");
             if (isDataRoot(direct)) return direct;
 
-            // Common VS Code case: workspace opened one folder above the project.
+            
             Path nested = p.resolve("HangmanSC_FINAL_JAVA8_FIXED2").resolve("data");
             if (isDataRoot(nested)) return nested;
         }
 
-        // Generic fallback: locate a data folder a few levels below the
-        // current workspace. This keeps the app working if the project folder
-        // is renamed or nested inside another workspace directory.
+        
+        
+        // ตรวจสอบโฟลเดอร์ย่อยของโฟลเดอร์ปัจจุบันและโฟลเดอร์พาเรนต์ (สูงสุด 4 ระดับ) เพื่อค้นหาโฟลเดอร์ data
         try (Stream<Path> stream = Files.walk(workingDir, 4)) {
             Path found = stream
                     .filter(Files::isDirectory)
@@ -60,14 +52,16 @@ public final class AppServices {
                     .orElse(null);
             if (found != null) return found;
         } catch (IOException ignored) {
-            // The explicit paths above are enough for the normal VS Code setup.
+            // หากเกิดข้อผิดพลาดในการค้นหาโฟลเดอร์ data ให้ข้ามไปและแสดงข้อความแสดงข้อผิดพลาดด้านล่าง
         }
 
-        // Keep the error close to the actual configuration problem.
+        // หากไม่พบโฟลเดอร์ data ให้แสดงข้อความแสดงข้อผิดพลาด
         throw new IllegalStateException(
                 "Cannot find Hangman data folder. Expected data/words/*.csv and data/players/players.csv "
                         + "under the project folder. Current folder: " + workingDir);
     }
+
+    // ===== ตรวจสอบว่าโฟลเดอร์ที่กำหนดมีไฟล์ CSV ของคำศัพท์และผู้เล่นครบถ้วนหรือไม่ =====
 
     private static boolean isDataRoot(Path root) {
         return Files.isDirectory(root.resolve("words"))

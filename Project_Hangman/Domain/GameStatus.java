@@ -1,2 +1,3 @@
 package Domain;
-public enum GameStatus { PLAYING, WON, LOST }
+//===== สถานะของเกม =====
+public enum GameStatus { PLAYING, WIN, LOST }
