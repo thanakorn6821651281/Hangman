@@ -90,13 +90,14 @@ public class DiffcultyUI extends javax.swing.JFrame {
         startGame(Domain.Difficulty.EASY);;
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        startGame(Domain.Difficulty.MEDIUM);        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
+
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        startGame(Domain.Difficulty.MEDIUM); // TODO add your handling code here:
+        startGame(Domain.Difficulty.HARD); // TODO add your handling code here:
     }//GEN-LAST:event_jButton3ActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        startGame(Domain.Difficulty.HARD);        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
        LoginUI back = new LoginUI();

@@ -7,6 +7,7 @@ import Domain.GameStatus;
 import Domain.HangmanGame;
 import Domain.Player;
 import Part_Service.AppServices;
+import Domain.GameStatus;
 /**
  *
  * @author USER
@@ -35,7 +36,7 @@ public class GamePlayUI extends javax.swing.JFrame {
         parts = new javax.swing.JLabel[] {
         lblHead, lblBody, lblArmL, lblArmR, lblLegL, lblLegR
         
-    };
+    }; 
     resetParts();
 }
 public GamePlayUI(Player player, HangmanGame game) {
@@ -316,7 +317,7 @@ public void setStage(int wrong) {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     private void onLetter(char c) {
-    /*if (game == null || game.Over()) {
+    if (game == null || game.getStatus() != GameStatus.PLAYING) {
         return;
     }
 
@@ -326,13 +327,13 @@ public void setStage(int wrong) {
         disableLetter(Character.toUpperCase(c));
         refresh();
 
-        if (game.isOver()) {
+        if (game.getStatus() != GameStatus.PLAYING) {
             finishGame();
         }
 
     } catch (IllegalArgumentException | IllegalStateException ex) {
         System.out.println(ex.getMessage());
-    }*/
+    }
     }
     private void refresh() {
     // jLabelWord.setText(game.displayWord());
@@ -358,35 +359,37 @@ public void setStage(int wrong) {
     }
     }
     private void finishGame() {
-        /*boolean won = game.isWon();
+        boolean won = (game.getStatus() == GameStatus.WON);
 
-    int pts = AppServices.game().score(game);
+    // 2. คำนวณคะแนน
+    int pts = 0;
+    try {
+        pts = AppServices.game().score(game);
+    } catch (Exception e) {
+        pts = won ? 100 : 0; // คะแนนสำรองกรณีไม่มีบริการคำนวณ
+    }
 
+    // 3. บันทึกคะแนนลงในผู้เล่นและบันทึกลงไฟล์ (ผ่าน AppServices)
     if (player != null) {
         player.addScore(pts);
-        AppServices.leaderboard().save(player);
+        try {
+            AppServices.leaderboard().save(player);
+        } catch (Exception e) {
+            System.out.println("Could not save score: " + e.getMessage());
+        }
     }
 
+    // 4. แสดงข้อความแจ้งเตือนผลลัพธ์
     if (won) {
-
-        // เปิดหน้า Win
-        new ResultUI(
-                player,
-                game,
-                true
-        ).setVisible(true);
-
+        javax.swing.JOptionPane.showMessageDialog(this, "You Won! Score: " + pts);
     } else {
-
-        // เปิดหน้า Game Over
-        new ResultUI(
-                player,
-                game,
-                false
-        ).setVisible(true);
+        javax.swing.JOptionPane.showMessageDialog(this, "Game Over! The word was: " + game.getAnswer());
     }
 
-    dispose();*/
+    // 5. กลับไปยังหน้า HomeUI และปิดหน้าต่างเล่นเกมปัจจุบัน
+    HomeUI home = new HomeUI();
+    home.setVisible(true);
+    dispose();
     }
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         HomeUI next = new HomeUI();

@@ -100,17 +100,25 @@ public class LoginUI extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
     String name = jTextField1.getText().trim();
-       if (name.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "sa cher di i kuy");
+    
+    if (name.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Sai cher gonn i ngo");
         return;
     }
 
-    // สร้าง Player จาก Domain
+    // ตรวจสอบว่ามีชื่อนี้อยู่ในไฟล์ CSV แล้วหรือยัง
+    /* 
+    if (nameExists(name)) {
+        JOptionPane.showMessageDialog(this, "mi cher nii yuu leaw i buffalo");
+        return;
+    }*/
+
+    // สร้าง Player จาก Domain หากไม่ซ้ำ
     Player player = new Player(name);
 
-        DiffcultyUI next = new DiffcultyUI(player); // ส่ง player ไปยังหน้าถัดไป
-       next.setVisible(true);
-       this.dispose();// TODO add your handling code here:
+    DiffcultyUI next = new DiffcultyUI(player); // ส่ง player ไปยังหน้าถัดไป
+    next.setVisible(true);
+    this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
